@@ -1,0 +1,2327 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "={{ `${$('FILTRAGEM').item.json.INSTANCE}:Contexto:${$('FILTRAGEM').item.json.Telefone}` }}",
+        "messageData": "={{ $('FILTRAGEM').item.json.mensagem }}",
+        "tail": true
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1648,
+        464
+      ],
+      "id": "1c7ac57e-7075-4fbe-9262-e8bf6be4a8a8",
+      "name": "Redis7",
+      "credentials": {
+        "redis": {
+          "id": "vi8x2Ou9E6E4xDPh",
+          "name": "Redis account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "mensagens",
+        "key": "={{ `${$('FILTRAGEM').item.json.INSTANCE}:Contexto:${$('FILTRAGEM').item.json.Telefone}` }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        2544,
+        464
+      ],
+      "id": "b4ad2648-d814-4121-82da-c2e0ca49380c",
+      "name": "Redis8",
+      "credentials": {
+        "redis": {
+          "id": "vi8x2Ou9E6E4xDPh",
+          "name": "Redis account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ `${$('FILTRAGEM').item.json.intance}:Contexto:${$('FILTRAGEM').item.json.Telefone}` }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        4032,
+        432
+      ],
+      "id": "11f09d46-42d6-4a63-a958-7743f9db117a",
+      "name": "Redis9",
+      "credentials": {
+        "redis": {
+          "id": "vi8x2Ou9E6E4xDPh",
+          "name": "Redis account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# MENSAGEM TEXTO\n",
+        "height": 420,
+        "width": 1384,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1216,
+        320
+      ],
+      "typeVersion": 1,
+      "id": "0c60c359-76ea-448d-b822-4e1c9b7943c5",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "={{ $('FILTRAGEM').item.json.INSTANCE }}",
+        "remoteJid": "={{ $('FILTRAGEM').item.json.Telefone }}",
+        "messageText": "=(Bell) {{ $('Code').item.json.message }}",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        7136,
+        464
+      ],
+      "id": "11cb955d-481c-486e-999f-3b8c0f3240b3",
+      "name": "Enviar texto",
+      "credentials": {
+        "evolutionApi": {
+          "id": "WlnfbOCINiCX9AX1",
+          "name": "Evolution account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('FILTRAGEM').item.json.tipoMensagem }}",
+                    "rightValue": "audioMessage",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "162a0c0e-4ca9-4fbb-acdc-e2593e83f781"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "2024773f-c6a4-405e-81d2-c609d350014b",
+                    "leftValue": "={{ $('FILTRAGEM').item.json.tipoMensagem }}",
+                    "rightValue": "conversation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "texto"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7fbfbd9e-478a-4b04-b962-85ace684a0ce",
+                    "leftValue": "={{ $('FILTRAGEM').item.json.tipoMensagem }}",
+                    "rightValue": "imageMessage",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "imagem"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        976,
+        448
+      ],
+      "id": "99c0c68a-ecfd-4e3e-8c0a-de16c58795e7",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "95af9a6b-8c1c-41ac-877c-a734d8fe4f05",
+              "name": "base64",
+              "value": "={{ $('Webhook').item.json.body.data.message.base64 }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1424,
+        0
+      ],
+      "id": "500c577e-1680-426c-857d-4af297bf1b84",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "95af9a6b-8c1c-41ac-877c-a734d8fe4f05",
+              "name": "data",
+              "value": "={{ $('Webhook').item.json.body.data.message.base64 }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1360,
+        992
+      ],
+      "id": "eedb4e36-17f1-4d7c-b36d-59a85d439fb9",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "base64",
+        "options": {
+          "fileName": "file.ogg",
+          "mimeType": "application/ogg"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1664,
+        0
+      ],
+      "id": "4b50974f-8198-48d7-8013-7dc0d6b3ccbf",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "data",
+        "options": {
+          "fileName": "file.png",
+          "mimeType": "image/png"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1600,
+        992
+      ],
+      "id": "3c4863f2-b7ec-4b2c-86f2-bf7040c5777a",
+      "name": "Convert to File1"
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "={{ `${$('FILTRAGEM').item.json.INSTANCE}:Contexto:${$('FILTRAGEM').item.json.Telefone}` }}",
+        "messageData": "={{ $json.text }}",
+        "tail": true
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        2192,
+        0
+      ],
+      "id": "dac4cc8a-f027-446c-882e-96b28bc05a23",
+      "name": "Transcrição de audio",
+      "credentials": {
+        "redis": {
+          "id": "vi8x2Ou9E6E4xDPh",
+          "name": "Redis account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "={{ `${$('FILTRAGEM').item.json.intance}:Contexto:${$('FILTRAGEM').item.json.Telefone}` }}",
+        "messageData": "={{ $json.content }}",
+        "tail": true
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        2192,
+        992
+      ],
+      "id": "b84cb5af-8b9f-469e-b71c-dca6ff4a3dc3",
+      "name": "transcrição de imagem",
+      "credentials": {
+        "redis": {
+          "id": "vi8x2Ou9E6E4xDPh",
+          "name": "Redis account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ddfc8c08-22d7-43e3-abad-b5cd3dfcdf13",
+              "name": "Nome",
+              "value": "={{ $json.body.data.pushName }}",
+              "type": "string"
+            },
+            {
+              "id": "da577156-0336-4cb8-98cf-acb620856825",
+              "name": "Telefone",
+              "value": "={{ $json.body.data.key.remoteJid.replaceAll(\"@s.whatsapp.net\",\"\") }}",
+              "type": "string"
+            },
+            {
+              "id": "3ba0eaa2-46cc-41a9-ac24-1f91aba1acca",
+              "name": "tipoMensagem",
+              "value": "={{ $json.body.data.messageType }}",
+              "type": "string"
+            },
+            {
+              "id": "e5af360f-3c55-4a41-bccf-0c764bdf6b4c",
+              "name": "fromMe",
+              "value": "={{ $json.body.data.key.fromMe }}",
+              "type": "string"
+            },
+            {
+              "id": "0fd39744-4570-425b-9898-424733135a4e",
+              "name": "bloquearAgente",
+              "value": "BloquearAgente",
+              "type": "string"
+            },
+            {
+              "id": "0415c178-5eea-4a0f-94ac-a7cdb91df646",
+              "name": "INSTANCE",
+              "value": "={{ $json.body.instance }}",
+              "type": "string"
+            },
+            {
+              "id": "69424ef3-1d35-444b-a43c-4aad2c096068",
+              "name": "mensagem",
+              "value": "={{ $json.body.data.message.conversation }}",
+              "type": "string"
+            },
+            {
+              "id": "7fae8632-1b10-4f31-81e7-d2ac21e591b2",
+              "name": "IDmensagem",
+              "value": "={{ $json.body.data.key.id }}",
+              "type": "string"
+            },
+            {
+              "id": "386d668d-adb3-4914-9623-bf13c91dc6d7",
+              "name": "BotName",
+              "value": "AgentDeIA",
+              "type": "string"
+            },
+            {
+              "id": "e9550c8c-473e-4d38-bb01-52e5e1c19236",
+              "name": "URL-EVOLUTION",
+              "value": "={{ $json.body.server_url }}",
+              "type": "string"
+            },
+            {
+              "id": "16d01c1d-78d6-451e-a13a-3ca45164dd79",
+              "name": "API-KEY-INSTANCE",
+              "value": "={{ $json.body.apikey }}",
+              "type": "string"
+            },
+            {
+              "id": "bffa8630-bb0d-4d87-9ca3-51439520aaef",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -400,
+        448
+      ],
+      "id": "250f50f2-d3c9-4f06-8524-6057d861cce7",
+      "name": "FILTRAGEM"
+    },
+    {
+      "parameters": {
+        "jsCode": "const allFinalMessages = [];\n\n// Função auxiliar para quebrar uma string longa em pedaços por sentença\nfunction chunkBySentence(text, maxLength) {\n    const sentenceRegex = /([.!?]\\s+)/g; // Captura o delimitador (. ! ?) e o espaço seguinte\n    const parts = text.split(sentenceRegex).filter(Boolean); // Divide e mantém os delimitadores\n    \n    const chunks = [];\n    let currentChunk = '';\n\n    for (const part of parts) {\n        // Se a parte for um delimitador, apenas a adiciona ao chunk atual\n        if (part.match(sentenceRegex)) {\n            currentChunk += part;\n            continue;\n        }\n\n        // Se adicionar a nova parte exceder o limite, finaliza o chunk atual\n        if ((currentChunk + part).length > maxLength) {\n            if (currentChunk.trim().length > 0) {\n                chunks.push(currentChunk.trim());\n            }\n            currentChunk = part; // Inicia um novo chunk com a parte atual\n        } else {\n            currentChunk += part;\n        }\n    }\n\n    if (currentChunk.trim().length > 0) {\n        chunks.push(currentChunk.trim());\n    }\n    \n    return chunks;\n}\n\nfor (const item of items) {\n    const text = item.json.output;\n    if (!text) {\n        continue;\n    }\n\n    const delaySeconds = 3;\n    const maxLength = 450; \n\n    // 1. Preservação de Links usando Map para substituição segura.\n    const urlRegex = /(https?:\\/\\/[^\\s )]+)/g;\n    const linkMap = new Map();\n    let linkIndex = 0;\n    \n    const processedText = text.replace(urlRegex, (match) => {\n        const marker = `__LINK_${linkIndex++}__`;\n        linkMap.set(marker, match);\n        return marker;\n    });\n\n    const paragraphs = processedText.split('\\n').filter(p => p.trim().length > 0);\n    const messageChunks = [];\n    let currentChunk = '';\n\n    for (const paragraph of paragraphs) {\n        // Se o parágrafo for muito longo, quebra por sentença\n        if (paragraph.length > maxLength) {\n            // Finaliza o chunk atual antes de inserir os sub-chunks do parágrafo\n            if (currentChunk.length > 0) {\n                messageChunks.push(currentChunk.trim());\n                currentChunk = '';\n            }\n            \n            const subChunks = chunkBySentence(paragraph, maxLength);\n            messageChunks.push(...subChunks);\n            continue;\n        }\n\n        // Tenta adicionar o parágrafo ao chunk existente\n        const nextChunk = currentChunk ? currentChunk + '\\n' + paragraph : paragraph;\n        \n        if (nextChunk.length > maxLength) {\n            // Se o parágrafo não couber, envia o chunk atual e inicia um novo\n            if (currentChunk.length > 0) {\n                messageChunks.push(currentChunk.trim());\n            }\n            currentChunk = paragraph;\n        } else {\n            // Adiciona o parágrafo ao chunk\n            currentChunk = nextChunk;\n        }\n    }\n\n    // Adiciona o último chunk\n    if (currentChunk.length > 0) {\n        messageChunks.push(currentChunk.trim());\n    }\n\n    // 4. Substitui os marcadores de volta pelos links e cria os objetos de mensagem.\n    const finalMessages = messageChunks.map(msg => {\n        let restored = msg;\n        linkMap.forEach((link, marker) => {\n            restored = restored.replace(marker, link);\n        });\n        \n        return {\n            json: {\n                ...item.json,\n                message: restored,\n                delay: delaySeconds\n            }\n        };\n    });\n\n    allFinalMessages.push(...finalMessages);\n}\n\nreturn allFinalMessages;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6128,
+        448
+      ],
+      "id": "47a4c148-2049-44b7-9003-f63523818a8c",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        6400,
+        448
+      ],
+      "id": "087f465f-4a76-4bd3-9348-dff4c10b5ff8",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        6704,
+        464
+      ],
+      "id": "14adf2f8-2f3e-44a0-963b-3f7903fd3553",
+      "name": "Wait",
+      "webhookId": "b471e242-b4a4-456c-a68e-b751a9df7b67"
+    },
+    {
+      "parameters": {
+        "resource": "chat-api",
+        "operation": "read-messages",
+        "instanceName": "={{ $('FILTRAGEM').item.json.INSTANCE }}",
+        "remoteJid": "={{ $('FILTRAGEM').item.json.Telefone }}",
+        "messageId": "={{ $('Webhook').item.json.body.data.key.id }}"
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        6928,
+        464
+      ],
+      "id": "d977781f-07d8-4432-a941-fc6823afbc3d",
+      "name": "Marcar mensagens como lidas",
+      "credentials": {
+        "evolutionApi": {
+          "id": "WlnfbOCINiCX9AX1",
+          "name": "Evolution account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a50b753e-914d-4d94-905a-fa8c94c5abb0",
+              "leftValue": "={{ $('Redis8').item.json.mensagens.last() }}",
+              "rightValue": "=={{ $('FILTRAGEM').item.json.tipoMensagem === 'conversation' ? $('FILTRAGEM').item.json.mensagem : ( $('FILTRAGEM').item.json.tipoMensagem === 'audioMessage' ? $('Transcribe a recording1').item.json.text : $('Analyze an image').item.json.content ) }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "c3bd79ba-fb05-4299-a328-60c004332b94",
+              "leftValue": "={{ $json.mensagens }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3472,
+        448
+      ],
+      "id": "7489fe49-7719-4bb4-a445-2699a04f1e74",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "amount": 25
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2256,
+        464
+      ],
+      "id": "40bbc8a5-e95f-4e70-a663-c6c2f8f5750a",
+      "name": "Wait3",
+      "webhookId": "a0a7adaf-1a17-4605-8fc2-8bacd1278eba",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fb0b9959-4c21-4c27-87fe-eb8b85bda568",
+              "name": "mensagens",
+              "value": "={{ $('Redis8').item.json.mensagens.join('\\n') }}",
+              "type": "string"
+            },
+            {
+              "id": "b4a1139c-fdcc-4430-b1b1-d02c148eb140",
+              "name": "Telefone",
+              "value": "={{ $('Wait3').item.json.Telefone }}",
+              "type": "string"
+            },
+            {
+              "id": "a8aea889-2081-4f3f-86bc-35dcf20781d9",
+              "name": "audio",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3776,
+        432
+      ],
+      "id": "fe540a42-66f6-46aa-892c-40e4c5b24754",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8f3c5924-3345-4451-99ed-fe412f9fe318",
+              "name": "mensagens",
+              "value": "={{ $json.mensagens }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2864,
+        464
+      ],
+      "id": "a434b8b3-3cae-496d-8d5e-f8763248a2a4",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "53ff9e60-19d4-4ca5-a4dd-b6d4846ffb0b",
+              "leftValue": "={{ $('FILTRAGEM').item.json.fromMe }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -208,
+        448
+      ],
+      "id": "975f5b09-e4d2-4ad9-a845-5017181fa648",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $('FILTRAGEM').item.json.BotName }}_{{ $('FILTRAGEM').item.json.Telefone }}_block",
+        "value": "true",
+        "expire": true,
+        "ttl": 1000
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        272
+      ],
+      "id": "3f31f4fa-c490-44dd-b2c6-9b357366cd3d",
+      "name": "Block",
+      "credentials": {
+        "redis": {
+          "id": "vi8x2Ou9E6E4xDPh",
+          "name": "Redis account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "isBlocked",
+        "key": "={{ $('FILTRAGEM').item.json.BotName }}_{{ $('FILTRAGEM').item.json.Telefone }}_block",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        4304,
+        432
+      ],
+      "id": "0e4c8ed4-8973-44d9-bcbf-9c8154272e5f",
+      "name": "Redis",
+      "credentials": {
+        "redis": {
+          "id": "vi8x2Ou9E6E4xDPh",
+          "name": "Redis account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        432,
+        272
+      ],
+      "id": "cf5f2e4c-1ad7-4d2c-88a1-71dd9d7af9db",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3562d704-a113-48eb-9b3d-5c067772000c",
+              "leftValue": "={{ $('Get many rows').item.json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3840,
+        -624
+      ],
+      "id": "70f43ede-b545-4cc9-8817-7d72f2a11615",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=DATA DO PROCESSAMENTO: {{ $now.setZone('America/Sao_Paulo').toFormat('dd/MM/yyyy HH:mm') }}\n\n---\nO QUE TINHA ANTES (HISTÓRICO):\n{{ $('Get many rows').item.json['RESUMO DO LEAD'] ? $('Get many rows').item.json['RESUMO DO LEAD'] : \"Sem histórico prévio.\" }}\n\n---\nO QUE HÁ DE NOVO (INFO RECENTE):\n{{ $('VEM DA IA PRINCIPAL').item.json['NOVA INFO'] }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=### 🧠 PERFIL\nVocê é o \"Prontuário Inteligente\" da Clínica UPDENTS. Sua única função é ler uma informação nova, comparar com o que já sabemos do paciente e entregar um resumo consolidado e limpo.\n\n### 📥 ENTRADAS\n- HISTORICO_ANTERIOR: O que já está salvo no banco de dados.\n- NOVA_INFO: O que acabou de chegar (pode conter nomes, CPFs, datas ou apenas relatos).\n\n### 🛠️ MÉTODO DE PROCESSAMENTO\n1. **Identificar e Extrair:** Procure na NOVA_INFO por: Nome, CPF, Data de Nascimento, Telefone, Procedimento de interesse e Status (ex: se agendou, se cancelou).\n2. **Mesclar:** - Se o dado já existe no HISTORICO e é o mesmo, mantenha.\n   - Se o dado é novo ou atualiza algo antigo (ex: mudou o CPF que estava errado), priorize a NOVA_INFO.\n   - Se a NOVA_INFO não trouxer dados novos (ex: for apenas um \"OK\" ou \"BUSCAR\"), repita o HISTORICO_ANTERIOR integralmente.\n3. **Limpar:** Remova instruções de sistema como \"Ação Salvar\", \"Dados coletados\" ou \"Atualize o prontuário\". Deixe apenas a informação limpa.\n\n### 📝 FORMATO DE SAÍDA (MARKDOWN OBRIGATÓRIO)\nRetorne APENAS o conteúdo abaixo, sem comentários:\n\n**👤 DADOS PESSOAIS**\n- Nome: [Valor ou \"Não informado\"]\n- CPF: [Valor ou \"Não informado\"]\n- Nasc: [Valor ou \"Não informado\"]\n- Tel: [Valor ou \"Não informado\"]\n\n**🦷 CLÍNICO & PREFERÊNCIAS**\n- [Resumo de sintomas, tratamentos em andamento ou o que o paciente busca]\n\n**📅 STATUS ATUAL**\n- [Ex: \"Em {{ $now.format('dd/MM/yyyy') }} forneceu os dados e aguarda confirmação de horário.\"]\n\n### 🚫 RESTRIÇÕES\n- NUNCA invente dados. \n- Se não houver informação para uma seção, coloque \"Não informado\".\n- Proibido introduções como \"Aqui está o resumo\"."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        3856,
+        -1008
+      ],
+      "id": "534a0f95-1531-45ab-95cc-c72636c79dea",
+      "name": "Expert em Memory"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "NOVA INFO"
+            },
+            {
+              "name": "TELEFONE"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        3312,
+        -624
+      ],
+      "id": "fce16445-6d5d-4e05-bd18-aa2e229b2da3",
+      "name": "VEM DA IA PRINCIPAL"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4304,
+        -608
+      ],
+      "id": "b0852719-cf07-4c45-addf-47bbc6c5b095",
+      "name": "Wait2",
+      "webhookId": "ff2f58eb-fb25-4681-9047-f133f1975ef8"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "databaseId": 369368,
+        "tableId": 834994,
+        "rowId": "={{ $('Get many rows').item.json.id }}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": 7187886,
+              "fieldValue": "={{ $('Get many rows').item.json.TELEFONE }}"
+            },
+            {
+              "fieldId": 7187892,
+              "fieldValue": "={{ $('Expert em Memory').item.json.output }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        4096,
+        -784
+      ],
+      "id": "7c9a4558-8fe0-462b-94ab-33741b32647c",
+      "name": "RESUMO DO LEAD",
+      "credentials": {
+        "baserowApi": {
+          "id": "8HAT5AeGiCl18wnj",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f14551da-365e-43f8-b6c2-06d8da3d899e",
+              "name": "response",
+              "value": "=resumo do lead: {{ $('Expert em Memory').item.json.output }}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4304,
+        -784
+      ],
+      "id": "300f76a3-e9d9-4714-b198-c3047b080715",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "content": "MEMORY LONG",
+        "height": 624,
+        "width": 1248,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3232,
+        -1040
+      ],
+      "typeVersion": 1,
+      "id": "1aa5dca5-f5fb-4b07-96da-184d70accb8f",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "databaseId": 369368,
+        "tableId": 834994,
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": 7187886,
+              "fieldValue": "={{ $('VEM DA IA PRINCIPAL').item.json.TELEFONE }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        4096,
+        -608
+      ],
+      "id": "b8e1f184-6ded-4e2b-a632-cb6013e56d16",
+      "name": "ID DO CLIENTE",
+      "alwaysOutputData": true,
+      "credentials": {
+        "baserowApi": {
+          "id": "8HAT5AeGiCl18wnj",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# MENSAGEM IMAGEM\n",
+        "height": 420,
+        "width": 1416,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1232,
+        800
+      ],
+      "typeVersion": 1,
+      "id": "65eb4015-92f1-4371-8b7b-e43f19217c4e",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "BLOQUEIO DE AGENTE DE IA\n",
+        "height": 420,
+        "width": 1608,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3232,
+        256
+      ],
+      "typeVersion": 1,
+      "id": "6d9cb874-5360-4aac-8965-a269e0fa3d7e",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "content": "TRATAMENTO DE MENSAGENS\n",
+        "height": 420,
+        "width": 1544
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5920,
+        304
+      ],
+      "typeVersion": 1,
+      "id": "46273c2e-31f3-4033-a8b6-b59ea4c0d155",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0f0b6b5b-48aa-4436-aaef-81eca9826226",
+              "name": "mensagens",
+              "value": "={{ $('Edit Fields3').item.json.mensagens }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5104,
+        448
+      ],
+      "id": "cc5e2f7b-d6f7-456f-b110-6049559d5273",
+      "name": "Edit Fields5"
+    },
+    {
+      "parameters": {
+        "content": "# MENSAGEM AUDIO\n",
+        "height": 420,
+        "width": 1380,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1232,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "42774189-68d1-45b0-873e-b992f0695eb9",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "description": "Use esta tool para salvar e recuperar dados do cliente:\n\nNome do cliente\n\nTelefone do cliente\n\nStatus de paciente\n\nQuando usar:\n\nAo receber dados novos ou atualizados.\n\nAntes de perguntar algo, consulte se já está salvo.\n\nNo início de conversa, recupere dados para personalizar o atendimento.\n\nApós o atendimento, registre o serviço feito.\n\nObjetivo: manter histórico e evitar perguntas repetidas, lembrando sempre dos dados do cliente",
+        "workflowId": {
+          "__rl": true,
+          "value": "Mrb3q4xp49xD8fWi",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/Mrb3q4xp49xD8fWi",
+          "cachedResultName": "Clinica Odontologica"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "NOVA INFO": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('NOVA_INFO', ``, 'string') }}",
+            "TELEFONE": "={{ $('FILTRAGEM').item.json.Telefone }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "NOVA INFO",
+              "displayName": "NOVA INFO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "TELEFONE",
+              "displayName": "TELEFONE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        5456,
+        1136
+      ],
+      "id": "9d5d9ef5-8075-4e48-a449-d54e12c4c20a",
+      "name": "MEMORY LONG"
+    },
+    {
+      "parameters": {
+        "description": "Use essa tool para enviar dados para o agente de agendamento, que fica responsável por fazer agendamentos para clinica.",
+        "workflowId": {
+          "__rl": true,
+          "value": "bo2RseP1CcFHOkyf",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/bo2RseP1CcFHOkyf",
+          "cachedResultName": "AGENDA"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "prompt": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('prompt', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "prompt"
+          ],
+          "schema": [
+            {
+              "id": "prompt",
+              "displayName": "prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        5456,
+        832
+      ],
+      "id": "42cb3739-cf0b-489f-a9b0-8a9e96d6da2a",
+      "name": "AGENDA"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "⚠️ OBRIGATÓRIO: Use esta ferramenta para QUALQUER pergunta sobre a Clínica . Você não conhece os serviços, preços, convênios ou dentistas sem consultar esta base. Se o cliente perguntar sobre valores, tratamentos, endereço ou quiser agendar, você DEVE consultar aqui primeiro para validar as informações. Não responda nada sobre a clínica baseado em conhecimento próprio.",
+        "tableName": {
+          "__rl": true,
+          "value": "RAG (UPDENTS)",
+          "mode": "list",
+          "cachedResultName": "RAG (UPDENTS)"
+        },
+        "topK": 6,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        5616,
+        752
+      ],
+      "id": "55a46a34-3962-4c35-bc18-c52084773782",
+      "name": "RAG_Clinica",
+      "credentials": {
+        "supabaseApi": {
+          "id": "BrwgSGGX8jvll436",
+          "name": "UPDENTS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "BVG7jY46hci4ieYh",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/BVG7jY46hci4ieYh",
+          "cachedResultName": "atendimento_humano"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "remoteid": "={{ $('FILTRAGEM').item.json.Telefone }}",
+            "nome_whatsapp": "={{ $('FILTRAGEM').item.json.Nome }}",
+            "URL-EVOLUTION": "={{ $('FILTRAGEM').item.json['URL-EVOLUTION'] }}",
+            "INSTANCE": "={{ $('FILTRAGEM').item.json.INSTANCE }}",
+            "API-KEY-INSTANCE": "={{ $('FILTRAGEM').item.json['API-KEY-INSTANCE'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "remoteid",
+              "displayName": "remoteid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "nome_whatsapp",
+              "displayName": "nome_whatsapp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "URL-EVOLUTION",
+              "displayName": "URL-EVOLUTION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "INSTANCE",
+              "displayName": "INSTANCE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "API-KEY-INSTANCE",
+              "displayName": "API-KEY-INSTANCE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        5456,
+        1008
+      ],
+      "id": "5e3803d2-9000-48ed-a185-44456fe3e9cb",
+      "name": "transfer_to_human"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Edit Fields3').item.json.mensagens }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=🤖 AGENTMASTER ODONTO v3.3 | UPDENTS (PRODUÇÃO)\n\n<identidade>\nNome: Bell\nPapel: Secretária da UpDents (WhatsApp).\nPersonalidade: Extremamente resolutiva, empática e \"viva\". Ela não apenas agenda, ela entende a urgência do paciente. \nEstilo de Escrita:  ULTRA-CONCISA. REGRA ABSOLUTA: Use NO MÁXIMO e frases curtas por mensagem. Seja curta e direta, porem de forma educada. Não explique o motivo das coisas a menos que seja questionada. Evite termos robóticos, fale como se fosse um humano.\n\n⚠️ DIRETRIZ HUMANA: Use contrações naturais (tá, pra, vc - se o paciente usar). Se for segunda-feira de manhã, pode comentar que a semana começou agitada. Se for sexta fim de tarde, pode desejar um bom descanso.\n⚠️ SIGILO: Nunca, em hiptese alguma, admita ser IA. voce deve agir 100% como humano. Se questionada, brinque: \"Tô tomando tanto café que daqui a pouco viro robô mesmo rs, mas sou eu aqui, a Bell!\"\n</identidade>\n\n<diretrizes_de_humanizacao>\n1. VARIAÇÃO: Nunca use a mesma saudação duas vezes seguidas. Alterne entre \"Oi!\", \"Olá!\", \"Bom dia!\", \"Tudo bem por aí?\".\n2. EMPATIA COM A DOR: Se o paciente citar dor ou incômodo, a primeira frase DEVE ser de acolhimento (ex: \"Puxa, dor de dente é terrível, vamos resolver isso agora.\").\n3. SEM FORMALISMO EXCESSIVO: Evite \"Poderia me informar\", use \"Consegue me passar?\". Evite \"Gostaria de agendar?\", use \"Bora marcar?\".\n4. USO DE EMOJIS: Use emojis de forma orgânica (🦷, ✨, 😊, 👍), nunca mais de dois por mensagem.\n5. ECONOMIA DE PALAVRAS: Corte \"gordura\" do texto. Responda a pergunta e faça a chamada para ação (Call to Action) na mesma frase sempre que possível. Zero explicações não solicitadas.\n</diretrizes_de_humanizacao>\n\n<contexto>\nDATA DE HOJE: {{ $now.setZone('America/Sao_Paulo').toFormat('dd/MM/yyyy') }} | Dia: {{ $now.setZone('America/Sao_Paulo').toFormat('EEEE', { locale: 'pt-BR' }) }} | HORA ATUAL: {{ $now.setZone('America/Sao_Paulo').toFormat('HH:mm') }}\n<expediente_geral>\n• Seg a Sex: 09:00 às 19:45 | Sáb: 09:00 às 15:45 | Dom/Feriados: FECHADO (Ofereça o próx. dia útil).\n</expediente_geral>\n</contexto>\n\n<regras_de_calendario>\n1. ANCORAGEM TEMPORAL: O dia de hoje é RIGOROSAMENTE o informado no <contexto>. Nunca invente ou altere a data de hoje.\n2. CÁLCULO DE DATAS FUTURAS: Se o paciente pedir \"amanhã\", você DEVE somar exatamente 1 dia à data de hoje. Se pedir um dia da semana (ex: \"próxima terça\"), calcule a data exata olhando para a data de hoje.\n3. PRECISÃO DE ANO E MÊS: Preste muita atenção nas viradas de mês e ano. Nunca agende um paciente para uma data no passado.\n4. CONFIRMAÇÃO OBRIGATÓRIA: Sempre que sugerir ou confirmar um dia, escreva a data completa para o paciente confirmar (ex: \"terça-feira, dia 24/03\"). Isso evita erros de interpretação.\n</regras_de_calendario>\n\n<regras_absolutas>\n🔄 ANÁLISE DE CONTEXTO ULTRA-INTELIGENTE (SUA HABILIDADE PRINCIPAL E OBRIGATÓRIA)\nSua maior habilidade é ler e interpretar o contexto da conversa ANTES de formular qualquer resposta. Você deve mapear o cenário exato da interação atual com precisão absoluta:\n 1. INTERVENÇÃO HUMANA (GATILHO DE BLOQUEIO ABSOLUTO): Se a mensagem anterior da clínica foi enviada com tags de outros humanos (ex: \"(Daiane)\", \"(Alane)\", \"(Dr.)\"), VOCÊ ESTÁ TERMINANTEMENTE PROIBIDA DE CONTINUAR O ASSUNTO. Isso significa que um humano assumiu o controle.\n\nAção Obrigatória: NÃO tente tirar dúvidas, NÃO ofereça agendamentos e NÃO consulte preços. Aja estritamente como um redirecionador silencioso e acione a tool TRANSFER_TO_HUMAN imediatamente, ou simplesmente encerre sem enviar texto nenhum, deixando o humano continuar.\n\n- REGRA DE FERRO: Se o usuário estiver confirmando um lembrete, É EXPRESSAMENTE PROIBIDO tentar prosseguir o assunto, oferecer novos horários ou aplicar regras de calendário. Trave o seu comportamento e aplique EXATAMENTE a FASE 0.\n\n- TRAVA DE SEGURANÇA: Se o paciente usar palavras como \"confirmar\" ou \"pode confirmar\" e você não encontrar o contexto anterior, NUNCA pergunte \"confirmar o quê?\". Aja como humano e acione a tool TRANSFER_TO_HUMAN imediatamente.\n\n2. CONTINUIDADE DE ATENDIMENTO: A solicitação anterior já foi resolvida?\n   - SE SIM e o usuário mandar apenas encerramento (\"obrigado\", \"tchau\", \"👍\"): APENAS seja cordial e NÃO inicie novos fluxos ou perguntas.\n   - SE SIM e o usuário mandar nova saudação (\"olá\", \"bom dia\"): ZERE o contexto e inicie novo atendimento. NÃO retome assuntos passados.\n\nREGRA DE AMNÉSIA DE CONTEXTO: Se o paciente responder algo como \"confirmado\", \"pode marcar\", \"tá bom\" ou enviar um \"👍\" e você NÃO identificar uma pergunta anterior sua no histórico, NUNCA diga que não sabe do que ele está falando. Assuma que foi um lembrete automático do sistema.\nAção: Responda \"Perfeito, já deixei confirmado aqui! 👍\" e encerre.\n\n⚖️ HIERARQUIA DE VERDADE & BLOQUEIOS CRÍTICOS:\nFLUXO LÓGICO OBRIGATÓRIO: 1. RAG_CLINICA (Quem faz?) ➜ 2. PRESENÇA (Atende no dia?) ➜ 3. AGENDA (Tem vaga?).\n\n❌ ALUCINAÇÃO ZERO: Nunca invente horários, dias, nomes de serviços ou crie exceções. Use os termos exatos do RAG.\n❌ PREÇOS E ORÇAMENTOS (REGRA DE OURO): A REGRA PADRÃO DA CLÍNICA É NÃO PASSAR PREÇO. A maioria absoluta dos procedimentos exige avaliação. Se o paciente perguntar o valor de QUALQUER serviço, VOCÊ É OBRIGADA A CONSULTAR O RAG. Se o RAG não trouxer um preço exato com a instrução clara de que pode ser informado, responda EXATAMENTE algo como: \"Para esse procedimento, a gente não passa o valor por aqui porque é necessária uma avaliação inicial pro doutor ver certinho o seu caso e te passar o orçamento correto, tá?\". NUNCA ESTIME OU INVENTE VALORES.\nTrava de Semântica Financeira: Se o paciente usar expressões como \"não vou pagar\", \"já paguei\" ou reclamações financeiras, NUNCA liste valores de consultas ou cite o Dr. Orlando a menos que o paciente pergunte EXPLICITAMENTE o valor da consulta dele. Transfira para o humano.\n\n❌ EXAMES (REGRAS RÍGIDAS): \n• Sangue: Exija a foto da guia para orçamento. Avise que a coleta NÃO é na clínica (é na Av. Francisco Morato, Vila Sônia). A guia com o endereço do laboratório só é enviada APÓS o pagamento. \n• Vista: Informe diretamente que a clínica NÃO realiza mais exames de vista.\n\n❌ CRUZAMENTO ESTRITO (SERVIÇO x PROFISSIONAL): NUNCA assuma a especialidade de um dentista. Antes de oferecer ou confirmar qualquer profissional, execute RAG_CLINICA. Priorize a ESPECIALIDADE e não o dia: se o cliente quer \"Clínico Geral\" na 2ª, mas só temos na 5ª, ofereça a 5ª. NUNCA ofereça um doutor da 2ª feira se o RAG não confirmar que ele faz aquele serviço.\n❌ TRAVA DE AGENDA: É terminantemente PROIBIDO acionar a tool AGENDA sem antes validar o profissional e o dia na tool PRESENÇA.\n❌ IMERSÃO 100% (SIGILO IA): Nunca quebre a persona da secretária. Ao acionar TRANSFER_TO_HUMAN, simule uma ação física no consultório: \"Vou confirmar isso rapidinho, só um minuto!\".\n\n📝 CADASTRO E TRAVAMENTO (Regra de Integridade):\nCONSULTA DE HORÁRIOS (Fase 3): É PROIBIDO pedir CPF ou Nascimento apenas para mostrar horários. Mostre as opções da agenda primeiro.\nCRIAÇÃO DE AGENDAMENTO (Fase 4): Para finalizar e reservar a vaga (Ação CRIAR), são vitais: Nome, CPF e Nascimento.\nOBRIGATÓRIO: Antes de pedir qualquer dado (Nome, CPF ou Nascimento), você deve analisar o retorno da tool MEMORY_LONG executada no início da conversa.\nSE O DADO JÁ EXISTE: Use-o automaticamente. Não pergunte o que você já sabe.\nSE O DADO ESTÁ PARCIAL: Se você já tem o Nome e o CPF, mas falta o Nascimento, peça APENAS a data de nascimento.\nSE NÃO TEM NADA: Aí sim, peça os três dados para finalizar a reserva.\n</regras_absolutas>\n\n<ferramentas>\n1️⃣ MEMORY_LONG (Persistência via Telefone)\n- BUSCAR: {\"telefone\": \"{{ $('FILTRAGEM').item.json.Telefone }}\", \"NOVA INFO\": \"BUSCAR\"}\n- SALVAR: {\"telefone\": \"{{ $('FILTRAGEM').item.json.Telefone }}\", \"NOVA INFO\": \"Dados coletados: Nome: [X], CPF: [Y], Nascimento: [Z]\"} (Se for para terceiro/filho, destaque no salvamento).\n\n2️⃣ RAG_CLINICA\n- Função: É a sua ÚNICA fonte de verdade. Execute OBRIGATORIAMENTE para buscar o endereço da clínica, VALORES, políticas, detalhes de procedimentos, convênios aceitos e para identificar QUEM TEM CAPACIDADE de fazer cada serviço. NUNCA invente dados ou deduzas preços; se o usuário perguntar de valores, consulte esta tool.\n\n3️⃣ AGENDA\n- CONSULTAR: AÇÃO=CONSULTAR; SERVIÇO=[nome]; PROFISSIONAIS=[Lista]; DATA=[YYYY-MM-DD]; TELEFONE={{ $('FILTRAGEM').item.json.Telefone }}\n- CRIAR: AÇÃO=CRIAR; SERVIÇO=[nome]; PROFISSIONAIS=[Dr X]; PACIENTE=[Nome]; DATA=[DD/MM/YYYY]; HORÁRIO=[HH:mm]; TELEFONE={{ $('FILTRAGEM').item.json.Telefone }}; OBSERVAÇÃO=[CPF: [X] | NASC: [Y]]\n- CANCELAR: AÇÃO=CANCELAR; PACIENTE=[Nome]; PROFISSIONAL=[Nome]; DATA=[YYYY-MM-DD]; HORÁRIO=[HH:mm]\n- ATUALIZAR: AÇÃO=ATUALIZAR; PACIENTE=[Nome]; DATA_ATUAL=[YYYY-MM-DD]; HORARIO_ATUAL=[HH:mm]; NOVA_DATA=[YYYY-MM-DD]; NOVO_HORARIO=[HH:mm]; NOVO_PROFISSIONAL=[Nome]\n⚠️ ATENÇÃO: Nome do PACIENTE é obrigatório para cancelar/atualizar. Peça CPF se houver homônimos.\n\n4️⃣ TRANSFER_TO_HUMAN\n- Execute OBRIGATORIAMENTE no mesmo turno ANTES de dizer \"só um minuto\".\n- ⚠️ MÁSCARA HUMANA (SIGILO): O paciente NÃO PODE SABER que ocorreu uma transferência. Aja como se você mesma fosse checar uma informação. Responda apenas com \"Vou dar uma olhadinha nisso, só um minuto!\" ou \"Vou confirmar com a recepção/doutor, um instante!\".\n- Gatilhos: Dificuldade de leitura, achar cadastro, arquivos/mídia, dúvidas complexas, fugas de escopo, dor aguda sem dentista disponível, agenda rotativa (Dr. José Pedro, Dra. Miriam).\n</ferramentas>\n\n<fluxo_operacional>\n📋 SOP — FLUXO DETERMINÍSTICO \n🧠 PENSAMENTO INTERNO (Antes de responder):\n1. Conversa finalizada? (Sim ➜ Apenas despeça-se).\n2. PERGUNTOU PREÇO?: O RAG autoriza passar o valor desse serviço específico? Se NÃO, negue e ofereça avaliação.\n3. CRUZAMENTO DE DADOS (Serviço x Profissional x Dia): O [DR] realiza o [SERVIÇO]? (Execute `RAG_CLINICA` OBRIGATORIAMENTE antes de sugerir um profissional). Se o paciente pedir um serviço que só ocorre às quintas, é PROIBIDO oferecer um dentista de segunda-feira para suprir a vaga, a menos que o RAG confirme que ele faz o mesmo serviço. A prioridade é a ESPECIALIDADE, não o dia.\n4. PRESENÇA: [DR] atende no [DIA]? (Execute tool `PRESENÇA` para validar ANTES de qualquer promessa).\n\n🔹 FASE 0: TRATAMENTO DE LEMBRETES E ATENDIMENTO HUMANO (PRIORIDADE MÁXIMA E BLOQUEIO ABSOLUTO)\nSe a última mensagem da clínica foi um LEMBRETE DE CONSULTA ou continha o nome de um ATENDENTE HUMANO (ex: \"(Daiane)\", \"(Alane)\"), sua inteligência de contexto deve agir como uma trava de segurança total. É terminantemente PROIBIDO pedir informações, justificar valores ou iniciar fluxo de reserva. Analise a resposta e aja estritamente assim:\n\nCENÁRIO A - CONFIRMAÇÃO (Sim / Ok / Tá bom / Confirmado / Pode confirmar / Vou sim / Sim amanhã / 👍):\n\nResponda EXATAMENTE: \"Perfeito, obrigada pela confirmação! Te esperamos.\" ou \"ok, obrigado\".\n\nAção: NÃO execute nenhuma tool. ENCERRE o fluxo imediatamente.\n\n⚠️ ATENÇÃO: Se a resposta de confirmação do paciente contiver palavras de tempo (ex: \"Sim, amanhã\" ou \"Confirmado para as 14h\"), a FASE 0 TEM PRIORIDADE ABSOLUTA. NÃO aplique regras de calendário e NÃO tente agendar um novo horário. Apenas agradeça e encerre.\n\n\n\nCENÁRIO B - NEGATIVA / DÚVIDA / QUALQUER OUTRA RESPOSTA (Não vou / Não posso / Preciso reagendar / Que horas era? / etc):\n\nResponda EXATAMENTE: \"Só 1 minuto\"\n\nAção: Execute TRANSFER_TO_HUMAN imediatamente no mesmo turno e ENCERRE o fluxo. Jamais tente resolver a dúvida por conta própria.\n\nCENÁRIO C - INTERAÇÃO COM HUMANO:\nSe o paciente estiver respondendo a uma mensagem assinada por um humano (ex: \"(Daiane) Vem sim, por favor...\"), você NÃO DEVE processar palavras como \"pagar\", \"cancelar\" ou \"marcar\".\nAção: Execute TRANSFER_TO_HUMAN imediatamente para devolver a conversa para a fila do humano, sem enviar nenhuma mensagem ao paciente.\n\n\n🔹 FASE 1: INÍCIO E TRIAGEM\n1. Execute `MEMORY_LONG: BUSCAR` e saude.\n2. Dúvidas: Consulte RAG ➜ Responda curto ➜ Pergunte: \"Gostaria de verificar os horários disponíveis pra gente fazer uma avaliação?\"\n3. Se \"Sim\": Vá para Fase 2. (❌ PROIBIDO avançar sem serviço/avaliação definido).\n\n🔹 FASE 1.5: CASOS ESPECÍFICOS (Retorno/Dor/Manutenção)\n- RETORNO/PROBLEMA: Pergunte qual DR fez o procedimento.\n  ↳ SEM dor: \"Como é um ajuste... o ideal é que seja pelo(a) Dr(a). [Nome]\". Execute `PRESENÇA` p/ este DR. Se ele não atender no dia, ofereça os dias que a tool retornou.\n  ↳ COM dor: Tente o DR citado via tool `PRESENÇA`. Indisponível? Execute `PRESENÇA` para \"Clínico Geral\" e ofereça como \"Urgência\".\n- MANUTENÇÃO (Orto): \"Já faz manutenção aqui ou é a 1ª vez?\".\n  ↳ 1ª Vez: Execute `PRESENÇA` para Dra. Jaqueline (Avaliação).\n  ↳ Recorrente: \"Com qual doutor(a) você passa?\". Execute `PRESENÇA` p/ este DR. Se não souber: \"Vou confirmar no histórico... Só um minutinho!\" ➜ `TRANSFER_TO_HUMAN`.\n\n🔹 FASE 2: VALIDAÇÃO DE ATENDIMENTO (TOOL PRESENÇA)\n⚠️ AÇÃO OBRIGATÓRIA: Identifique o [DR] e o [Dia] ➜ Execute Tool `PRESENÇA` enviando o nome do profissional.\n1. DIA INDISPONÍVEL: Se a tool NÃO listar o [Dia] solicitado para o [DR] ➜ Negue: \"O(a) [DR] atende exclusivamente às [Dias da Tool]. Para [Dia], não temos agenda com ele(a).\"\n2. STATUS ESPECIAL: Se a tool retornar \"QUINZENAL\", \"FLEXIVEL\" ou \"CONFIRMAR\" ➜ \"Só 1 minuto, vou verificar a disponibilidade do Dr. [Nome] agora.\" ➜ `TRANSFER_TO_HUMAN`.\n3. STATUS DISPONÍVEL: Se o dia constar com horários ➜ Prossiga para Fase 3.\n4. ULTRASSOM: \"O ultrassom é com Dr. José Pedro, segundas quinzenais... Vou verificar para você 😊\" ➜ `TRANSFER_TO_HUMAN`.\n5. DRA. MIRIAM: Se o paciente pedir a Dra. Miriam ➜  Só um minutinho que já vejo isso pra você 😊\" ➜ TRANSFER_TO_HUMAN.\n\n🔹 FASE 3: CONSULTA DE HORÁRIOS (TOOL AGENDA)\n1. Pergunte a preferência (hora ou turno).\n2. Execute `AGENDA: CONSULTAR` para Data e DRs validados.\n3. ⚠️ REGRA DE OURO: Apresente os horários vagos imediatamente. NÃO peça CPF ou dados cadastrais nesta fase.\n4. Exato vago: Vá p/ Fase 4. | Ocupado: Sugira 1 horário antes e 1 depois.\n5. Turno: Sugira os 2 horários mais centrais/vagos do turno.\n⚠️ TRAVA: Nunca consulte a `AGENDA` sem antes validar a `PRESENÇA`.\n\n🔹 FASE 4: CADASTRO E CONFIRMAÇÃO\n1. `MEMORY_LONG: BUSCAR` (Nome, CPF, Nasc). Faltam dados? Peça-os e PARE o fluxo.\n2. Dados novos: Execute `MEMORY_LONG: SALVAR` (\"Dados coletados: Nome: [X], CPF: [Y], Nascimento: [Z]\").\n3. Resumo de validação:\n   👤 Paciente: [Nome] | 🆔 CPF: [CPF] | 🎂 Nasc: [Data] | 📅 Agendamento: [Data] às [Hora] - [Serviço]\n4. Após o \"Sim\": Execute tool `AGENDA: CRIAR` preenchendo EXATAMENTE:\n   `SERVIÇO=[nome]; PROFISSIONAIS=[Dr X]; PACIENTE=[Nome]; DATA=[DD/MM/YYYY]; HORÁRIO=[HH:mm]; TELEFONE={{ $('FILTRAGEM').item.json.Telefone }}; OBSERVAÇÃO=[CPF: [X] | NASC: [Y]]`\n5. Confirmação Final: \"Prontinho! Já deixei agendado aqui. Te esperamos! 🦷\"\n</fluxo_operacional>\n\n<tom_exemplos>\n🎭 TOM: Prático, acolhedor e \"papo reto\". Máximo 3 frases. \n\nEx 1: [Dúvida sobre Serviço]\nUser: \"Como funciona o clareamento?\"\nPensamento: Paciente quer saber de clareamento. Consultar RAG. \nBell: \"O clareamento aqui é super tranquilo, feito com gel e laser pra um resultado bem rápido (uns 45min)! ✨ O Dr. Tiago é especialista nisso, quer que eu veja os horários dele pra você fazer uma avaliação?\"\n\nEx 1.5: [Dúvida sobre Preço - Bloqueio de Orçamento]\nUser: \"Qual o valor para fazer um canal?\"\nPensamento: Paciente perguntou preço de canal. Consultei RAG. O RAG não informa valor exato para o WhatsApp, diz que precisa avaliar.\nBell: \"Pra canal, o doutor precisa fazer uma avaliação inicial para passar o orçamento certinho, tá? Bora marcar e resolver isso? 😊\"\n\nEx 2: [Dia indisponível na Tool Presença]\nUser: \"Quero Dra. Talu na sexta.\"\nPensamento: Tool Presença diz que Dra. Talu só atende Terças. Negar com alternativa.\nBell: \"A Dra. Talu atende só às terças! 🦷 Deixo agendado pra próxima terça ou prefere passar com o clínico geral na sexta?\"\n\nEx 2.5: [Especialidade indisponível no dia desejado]\nUser: \"Queria passar no clínico geral nessa segunda.\"\nPensamento: RAG diz que clínico geral é só quinta. Na segunda tem o Dr. Tiago, mas o RAG diz que ele NÃO é clínico geral. Logo, não posso oferecê-lo. Vou restringir às quintas.\nBell:\"Para clínico geral, os atendimentos são só de quinta-feira! 🦷 Consigo te encaixar nessa próxima, quer ver os horários?\"\n\nEx 3: [Uso inteligente da Memória - Cadastro Parcial]\nContexto Memory: {nome: \"Carlos Andrade\", cpf: \"123.456...\", nascimento: null}\nUser: \"Consegue marcar amanhã às 14h?\"\nPensamento: Já tenho Nome e CPF do Carlos. Falta só o Nascimento.\nBell:\"Consigo sim, Carlos! Só preciso da sua data de nascimento pra finalizar a reserva com o Dr. Tiago, pode me passar?\"\n\nEx 4: [Cadastro de Terceiros / Filho]\nUser: \"Quero marcar pra minha filha.\"\nBell: \"Claro, ajudo sim! Pra eu deixar tudo certinho no sistema, me passa o nome completo dela, o CPF e a data de nascimento, por favor?\"\n\nEx 5: [Mídia / Foto]\nUser: [Envia foto de Raio-X]\nPensamento: Mídia detectada. Gatilho Transfer_to_human.\nBell: \"Recebi sua imagem! Vou passar agora mesmo para o pessoal da recepção dar uma olhada e já te retorno. Só um minutinho! ⏳\"\n\nEx 6: [Dúvida complexa ou Fuga de Escopo - Acionando a Tool]\nUser: \"Esqueci minha carteira ai, tem como guardar?\"\nPensamento: ação humana/complexidade. Gatilho para TRANSFER_TO_HUMAN. Não posso falar a palavra 'humano' nem 'transferir'.\nBell: \"Puxa, vamos ver isso agora mesmo! Só um minutinho! ⏳\"\n\nEx 7: [Respostas APÓS LEMBRETE - Cenário Positivo]\nContexto de Conversa: Última mensagem enviada foi lembrete de consulta amanhã.\nUser: \"tá bom\" ou \"confirmado\" ou \"ok\"\nPensamento: O paciente está confirmando o lembrete. Regra de ferro ativada: não devo continuar o assunto, nem pedir informações. Apenas agradeço.\nBell: \"ok, obrigado\"\n\nEx 7.5: [Respostas APÓS LEMBRETE contendo palavras de tempo]\nContexto de Conversa: Lembrete ou mensagem da clínica sobre agendamento amanhã às 14h.\nUser: \"Sim amanhã as 14\" ou \"Pode confirmar\"\nPensamento: O paciente está confirmando um agendamento existente, mas usou palavras de calendário (\"amanhã\", \"14\"). A Fase 0 tem prioridade absoluta sobre o calendário. Não vou consultar agenda.\nBell: \"Perfeito, obrigada pela confirmação! Te esperamos.\"\n\nEx 8: [Respostas APÓS LEMBRETE - Cenário Negativo ou Dúvida]\nContexto de Conversa: Última mensagem enviada foi lembrete de consulta amanhã.\nUser: \"não vou conseguir ir\" ou \"que horas era mesmo?\" ou \"preciso reagendar\"\nPensamento: Resposta a lembrete que não é uma confirmação direta. Regra de ferro ativada: devo transferir para humano imediatamente sem tentar resolver.\nBell: \"Só 1 minuto\" (E aciona a Tool TRANSFER_TO_HUMAN)\n</tom_exemplos>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        5312,
+        448
+      ],
+      "id": "9520cb95-6368-4ccd-8d38-55e68cc5cda4",
+      "name": "AI Agent1",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "databaseId": 369368,
+        "tableId": 834994,
+        "limit": 1,
+        "additionalOptions": {
+          "search": "={{ $('VEM DA IA PRINCIPAL').item.json.TELEFONE }}"
+        }
+      },
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        3632,
+        -624
+      ],
+      "id": "3a7a5919-df8a-46b1-bbaf-89939b666535",
+      "name": "Get many rows",
+      "alwaysOutputData": true,
+      "credentials": {
+        "baserowApi": {
+          "id": "8HAT5AeGiCl18wnj",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "updents",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -720,
+        448
+      ],
+      "id": "73f500b8-5401-4460-b74d-70645374c106",
+      "name": "Webhook",
+      "webhookId": "8ad7ee53-55a6-427c-b571-2c0b454ecb26"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('FILTRAGEM').item.json.Telefone }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        5200,
+        768
+      ],
+      "id": "21520884-76f9-4c59-8860-006f4b1a4eba",
+      "name": "MEMORIA",
+      "credentials": {
+        "postgres": {
+          "id": "ZzZiRdn0RCYWGoBL",
+          "name": "dentista"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1jiI4BoE_RtpLIhQ-7aJwhrs8MnLioofr4hmtrdnSA00",
+          "mode": "list",
+          "cachedResultName": "colaboradores",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jiI4BoE_RtpLIhQ-7aJwhrs8MnLioofr4hmtrdnSA00/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jiI4BoE_RtpLIhQ-7aJwhrs8MnLioofr4hmtrdnSA00/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "TELEFONE",
+              "lookupValue": "={{ $('FILTRAGEM').item.json.Telefone }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        400,
+        464
+      ],
+      "id": "1529df55-e3f5-4802-9dcd-8c2f49639edd",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zGJabdFUWtuVuFBR",
+          "name": "Jesus é rei"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "bf8509d0-b178-40ae-97fa-7fbec26ee689",
+              "leftValue": "={{ $json.TELEFONE }}",
+              "rightValue": "559295378007",
+              "operator": {
+                "type": "number",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "024f6a1a-a3c0-42b7-8442-7727196f4a40",
+              "leftValue": "={{ $('Webhook').item.json.body.data.key.remoteJid }}",
+              "rightValue": "5511976462935-1530373844@g.us",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        640,
+        464
+      ],
+      "id": "fa802763-a070-4607-89ad-072526c9d58e",
+      "name": "If5"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        640,
+        272
+      ],
+      "id": "d99bfa48-e952-413c-91cb-5a8e41c713f5",
+      "name": "No Operation, do nothing2"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "cXrkKO8qxNPFsRZC",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/cXrkKO8qxNPFsRZC",
+          "cachedResultName": "PRESENÇA PROFISSIONAIS"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "BUSCAR": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('BUSCAR', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "BUSCAR"
+          ],
+          "schema": [
+            {
+              "id": "BUSCAR",
+              "displayName": "BUSCAR",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        5456,
+        640
+      ],
+      "id": "65c8e7e3-8e7e-4bc7-aa40-15f45fd35684",
+      "name": "PRESENÇA"
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-3-flash-preview",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        5008,
+        688
+      ],
+      "id": "8af484f9-bc3e-4811-91ea-7f98662bd6a5",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "XwiJ1YgBBHvQIOY0",
+          "name": "OpenRouter UPDENTS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        3808,
+        -768
+      ],
+      "id": "a70353c9-a915-4763-8c0c-524e7478df3d",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "XwiJ1YgBBHvQIOY0",
+          "name": "OpenRouter UPDENTS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        3920,
+        -768
+      ],
+      "id": "f6d444f4-e6ad-4cc2-8034-09b0e31e23f0",
+      "name": "OpenRouter Chat Model2",
+      "credentials": {
+        "openRouterApi": {
+          "id": "XwiJ1YgBBHvQIOY0",
+          "name": "OpenRouter UPDENTS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        5712,
+        960
+      ],
+      "id": "3769ad15-7852-4d84-9737-d342d1540e3c",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "mCAP4m7QLbgqHPel",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.0-flash-lite",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.0-flash-lite"
+        },
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1904,
+        0
+      ],
+      "id": "91204f0c-288b-4a23-b817-d6408f5149ab",
+      "name": "Transcribe a recording1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "E2KQ7CUorJSN5qdP",
+          "name": "SUBAGENTE"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "isBlocked",
+        "key": "={{ $('FILTRAGEM').item.json.BotName }}_{{ $('FILTRAGEM').item.json.Telefone }}_block",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        0,
+        448
+      ],
+      "id": "3cb86f66-0136-4d58-87a7-036f43c7a2b9",
+      "name": "Redis1",
+      "credentials": {
+        "redis": {
+          "id": "vi8x2Ou9E6E4xDPh",
+          "name": "Redis account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "e59cdf8f-70b4-4a51-9368-194bc3d172dd",
+              "leftValue": "={{ $json.isBlocked }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        448
+      ],
+      "id": "89be0e86-d6cc-44ec-aa2d-24939ff84e35",
+      "name": "If3"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        192,
+        272
+      ],
+      "id": "00072752-dedb-4af0-b359-9e2703ecc0bb",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-pro",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-pro"
+        },
+        "text": "Persona: Você é um assistente de triagem da clínica odontológica Updents, especializado em leitura de guias de encaminhamento, pedidos de exames e laudos radiológicos.\n\nTarefa: Analise a imagem anexada e extraia as informações essenciais. Se a imagem for uma guia ou pedido, identifique os procedimentos e dentes envolvidos.\n\nRegras Estritas:\n\nSe a imagem estiver muito borrada ou não for um documento odontológico, defina o campo \"status\" como \"erro\".\n\nSe for um documento válido, defina o \"status\" como \"sucesso\".\n\nRetorne APENAS o código JSON puro, sem explicações ou Markdown (sem aspas de crase ```).\n\nEstrutura do JSON esperada:\n{\n\"status\": \"sucesso | erro\",\n\"tipo_documento\": \"Guia de Convênio / Pedido de Exame / Laudo / Outro\",\n\"paciente_nome\": \"Nome completo\",\n\"data_emissao\": \"DD/MM/AAAA\",\n\"dentista_solicitante\": \"Nome do Dr(a)\",\n\"procedimentos\": [\"Procedimento 1\", \"Procedimento 2\"],\n\"dentes_regioes\": [\"Ex: 18, 28, 38, 48 ou Mandíbula\"],\n\"observacoes\": \"Qualquer nota clínica relevante escrita à mão ou impressa\"\n}",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1904,
+        992
+      ],
+      "id": "d8d1e3fa-1676-4402-a880-822a290c2bbc",
+      "name": "Analyze an image",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "E2KQ7CUorJSN5qdP",
+          "name": "SUBAGENTE"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Redis7": {
+      "main": [
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis8": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis9": {
+      "main": [
+        [
+          {
+            "node": "Redis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar texto": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Redis7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File1": {
+      "main": [
+        [
+          {
+            "node": "Analyze an image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcrição de audio": {
+      "main": [
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "transcrição de imagem": {
+      "main": [
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FILTRAGEM": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Marcar mensagens como lidas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar mensagens como lidas": {
+      "main": [
+        [
+          {
+            "node": "Enviar texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "Redis8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Redis9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Block",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Redis1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Block": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Expert em Memory",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ID DO CLIENTE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Expert em Memory": {
+      "main": [
+        [
+          {
+            "node": "RESUMO DO LEAD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VEM DA IA PRINCIPAL": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RESUMO DO LEAD": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ID DO CLIENTE": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields5": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MEMORY LONG": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AGENDA": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RAG_Clinica": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "transfer_to_human": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "FILTRAGEM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MEMORIA": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PRESENÇA": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Expert em Memory",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Expert em Memory",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "RAG_Clinica",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording1": {
+      "main": [
+        [
+          {
+            "node": "Transcrição de audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis1": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing1": {
+      "main": [
+        []
+      ]
+    },
+    "Analyze an image": {
+      "main": [
+        [
+          {
+            "node": "transcrição de imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "VEM DA IA PRINCIPAL": [
+      {
+        "NOVA INFO": "BUSCAR",
+        "TELEFONE": "5511960130733"
+      }
+    ],
+    "Webhook": [
+      {
+        "headers": {
+          "host": "n8n.guiadoporjesus.pro",
+          "user-agent": "axios/1.13.2",
+          "content-length": "1672",
+          "accept": "application/json, text/plain, */*",
+          "accept-encoding": "gzip, compress, deflate, br",
+          "content-type": "application/json",
+          "x-forwarded-for": "172.18.0.1",
+          "x-forwarded-host": "n8n.guiadoporjesus.pro",
+          "x-forwarded-port": "443",
+          "x-forwarded-proto": "https",
+          "x-forwarded-server": "41f90b75b63f",
+          "x-real-ip": "172.18.0.1"
+        },
+        "params": {},
+        "query": {},
+        "body": {
+          "event": "messages.upsert",
+          "instance": "bia",
+          "data": {
+            "key": {
+              "remoteJid": "5511960130733@s.whatsapp.net",
+              "remoteJidAlt": "5511960130733@s.whatsapp.net",
+              "fromMe": false,
+              "id": "AC84013EE53889F07C407F7226165376",
+              "participant": "",
+              "addressingMode": "lid"
+            },
+            "pushName": "Samuel Oliveira 🎚️",
+            "status": "DELIVERY_ACK",
+            "message": {
+              "messageContextInfo": {
+                "threadId": [],
+                "deviceListMetadata": {
+                  "senderKeyIndexes": [],
+                  "recipientKeyIndexes": [],
+                  "senderKeyHash": {
+                    "0": 8,
+                    "1": 1,
+                    "2": 37,
+                    "3": 207,
+                    "4": 30,
+                    "5": 5,
+                    "6": 242,
+                    "7": 42,
+                    "8": 113,
+                    "9": 192
+                  },
+                  "senderTimestamp": {
+                    "low": 1775837790,
+                    "high": 0,
+                    "unsigned": true
+                  },
+                  "recipientKeyHash": {
+                    "0": 113,
+                    "1": 100,
+                    "2": 229,
+                    "3": 82,
+                    "4": 242,
+                    "5": 16,
+                    "6": 220,
+                    "7": 64,
+                    "8": 234,
+                    "9": 98
+                  },
+                  "recipientTimestamp": {
+                    "low": 1776863151,
+                    "high": 0,
+                    "unsigned": true
+                  }
+                },
+                "deviceListMetadataVersion": 2,
+                "messageSecret": {
+                  "0": 102,
+                  "1": 203,
+                  "2": 209,
+                  "3": 72,
+                  "4": 201,
+                  "5": 80,
+                  "6": 172,
+                  "7": 179,
+                  "8": 157,
+                  "9": 57,
+                  "10": 238,
+                  "11": 42,
+                  "12": 63,
+                  "13": 198,
+                  "14": 24,
+                  "15": 156,
+                  "16": 44,
+                  "17": 192,
+                  "18": 27,
+                  "19": 194,
+                  "20": 60,
+                  "21": 251,
+                  "22": 124,
+                  "23": 210,
+                  "24": 216,
+                  "25": 165,
+                  "26": 155,
+                  "27": 77,
+                  "28": 153,
+                  "29": 177,
+                  "30": 188,
+                  "31": 29
+                }
+              },
+              "conversation": "Olá"
+            },
+            "contextInfo": {
+              "mentionedJid": [],
+              "groupMentions": [],
+              "statusAttributions": [],
+              "entryPointConversionSource": "global_search_new_chat",
+              "entryPointConversionApp": "whatsapp",
+              "entryPointConversionDelaySeconds": 418829
+            },
+            "messageType": "conversation",
+            "messageTimestamp": 1776863239,
+            "instanceId": "3ef494ee-f3c8-4e71-bb86-448e0593020a",
+            "source": "android"
+          },
+          "destination": "https://n8n.guiadoporjesus.pro/webhook-test/updents",
+          "date_time": "2026-04-22T10:07:20.058Z",
+          "sender": "5511960320275@s.whatsapp.net",
+          "server_url": "https://n8n-evolution-api.lckc4j.easypanel.host",
+          "apikey": "A02B78AAD85C-4605-8CFE-9D7D92F3D6F5"
+        },
+        "webhookUrl": "https://n8n.guiadoporjesus.pro/webhook-test/updents",
+        "executionMode": "test"
+      }
+    ]
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "943dc715a854d9179c67d7eb9a5865e73543b741372b38cef686a18f72122b6b"
+  }
+}    
