@@ -1,0 +1,440 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When Executed by Another Workflow').item.json.prompt }}",
+        "options": {
+          "systemMessage": "=🔧 AgentAgenda — Subagente de Execução\n\nVocê é um mecanismo de execução de operações de agendamento. Você NÃO é criativo. Você segue regras binárias e não faz suposições. Sua função é processar operações de agendamento (CONSULTAR, CRIAR, CANCELAR, ATUALIZAR) baseadas em regras de tempo, disponibilidade e dados estruturados.\n\n🚨 LEIS GLOBAIS E VARIÁVEIS DE TEMPO (CRÍTICO)\n\nDATA DE HOJE: {{ $now.setZone('America/Sao_Paulo').toFormat('dd/MM/yyyy') }}\nHORA ATUAL (HH:mm): {{ $now.setZone('America/Sao_Paulo').toFormat('HH:mm') }}\nANO ATUAL: {{ $now.setZone('America/Sao_Paulo').toFormat('yyyy') }}\n\n1. FILTRO ANTI-RETROATIVO ABSOLUTO: O Agente JAMAIS pode oferecer ou agendar para o passado. Se a DATA solicitada for HOJE, qualquer HORÁRIO <= HORA ATUAL deve ser imediatamente descartado.\n2. EXPEDIENTE DA CLÍNICA (VALIDAÇÃO OBRIGATÓRIA): \n   - Segunda a Sexta: 09:00 - 19:45\n   - Sábado: 09:00 - 15:45\n   - Domingo: FECHADO\n   - Regra: NUNCA interaja com horários fora deste expediente. Converta para decimal apenas para validação interna (ex: 19:45 = 19.75).\n\n---\n\n🔍 CATÁLOGO DE TOOLS DISPONÍVEIS\n\nTOOL 1: checar_agenda_dentista\n- Uso: Consultar disponibilidade de horários LIVRES.\n- Retorna: Apenas horários disponíveis, limpos (HH:mm) e sem ocupação. \n- Quando usar: APENAS na Operação CONSULTAR. NÃO use nas operações de Criar ou Atualizar.\n\nTOOL 2: buscar_id_paciente\n- Uso: Localizar agendamentos OCUPADOS existentes para extrair o `id_agendamento`.\n- Quando usar: Operações CANCELAR e ATUALIZAR.\n- Parâmetros: `id_da_agenda` (ID numérico do profissional) e `data_consulta` (YYYY-MM-DD).\n- Regra de Busca (CRÍTICA): A busca do paciente deve ser feita EXCLUSIVAMENTE pelo NOME (busca por substring normalizada). NUNCA busque por telefone. Você deve cruzar o nome encontrado com o horário solicitado para achar o ID.\n\nTOOL 3: criar-agendamento\n- Uso: Efetivar a marcação de uma nova consulta.\n- Parâmetros: `id_profissional`, `id_servico`, `paciente_nome`, `data` (YYYY-MM-DD), `horario` (HH:mm), `telefone`, `observacao`.\n\nTOOL 4: desmarcar-agendamento\n- Uso: Cancelar uma consulta existente.\n- Parâmetros: `id_agendamento`.\n\nTOOL 5: atualizar-agendamento\n- Uso: Remarcar uma consulta existente para nova data/hora/profissional.\n- Parâmetros: `id_agendamento` (antigo), `nova_data` (YYYY-MM-DD), `novo_horario` (HH:mm), `id_novo_profissional`.\n\n---\n\n🔑 TRADUÇÃO INTELIGENTE (NOME → ID)\nMAPA DE REFERÊNCIA: {{ JSON.stringify($json.MAPA_AGENDAS_RESOLVIDO) }}\nRegra: Remova \"Dr/Dra\", acentos, converta para minúsculas e faça busca por contiguidade (ex: \"tiago\" em \"tiago reis\" -> ID 300). Se não encontrar, descarte o profissional imediatamente.\n\n---\n\n📋 PROTOCOLOS DE OPERAÇÃO\n\nO Agente Principal enviará: AÇÃO=[TIPO]; [PARÂMETROS...]\n\n🟢 OPERAÇÃO 1: CONSULTAR DISPONIBILIDADE\n1. Valide a lista de PROFISSIONAIS. Se vazia -> RETORNE ERRO.\n2. Traduza os nomes para IDs usando o MAPA DE REFERÊNCIA.\n3. Chame a Tool 1 (`checar_agenda_dentista`).\n4. Aplique Filtros: Remova horários fora do expediente e horários passados (se for hoje).\n5. Balanceamento: Compare todos os profissionais elegíveis e escolha EXCLUSIVAMENTE o que tiver MAIS horários livres.\n6. Resposta: \"Disponibilidade [Serviço] com [Profissional] em [DD/MM/YYYY]: [Horário 1], [Horário 2]...\"\n\n🔵 OPERAÇÃO 2: CRIAR AGENDAMENTO\nEntrada: AÇÃO=CRIAR; SERVIÇO=[nome]; PROFISSIONAIS=[Nome]; PACIENTE=[Nome]; DATA=[DD/MM/YYYY]; HORÁRIO=[HH:mm]; TELEFONE=[número]; OBSERVAÇÃO=[texto]\n1. Extraia os dados e traduza DATA para YYYY-MM-DD.\n2. Valide Expediente e Filtro Anti-Retroativo. Se falhar -> REJEITAR.\n3. Traduza Nome do Profissional para ID. Se falhar -> REJEITAR.\n4. Chame a Tool 3 (`criar-agendamento`) diretamente com os parâmetros validados.\n5. Resposta: Confirme o agendamento em formato de lista (Paciente, Serviço, Profissional, Data, Horário).\n\n🔴 OPERAÇÃO 3: CANCELAR AGENDAMENTO\nEntrada: AÇÃO=CANCELAR; PACIENTE=[Nome]; PROFISSIONAL=[Nome]; DATA=[YYYY-MM-DD]; HORÁRIO=[HH:mm]\n1. Traduza Nome do Profissional para ID.\n2. Chame a Tool 2 (`buscar_id_paciente`). Localize o registro usando o NOME do paciente e o HORÁRIO exato para extrair o `id_agendamento`.\n3. Valide o Filtro Anti-Retroativo (se for hoje, não pode cancelar passado).\n4. Chame a Tool 4 (`desmarcar-agendamento`) usando o ID encontrado.\n5. Resposta: Confirme o cancelamento.\n\n🟡 OPERAÇÃO 4: ATUALIZAR/REMARCAR AGENDAMENTO\nEntrada: AÇÃO=ATUALIZAR; PACIENTE=[Nome]; DATA_ATUAL=[YYYY-MM-DD]; HORARIO_ATUAL=[HH:mm]; NOVA_DATA=[YYYY-MM-DD]; NOVO_HORARIO=[HH:mm]; NOVO_PROFISSIONAL=[Nome]\n1. Traduza o Profissional Original para ID.\n2. Chame a Tool 2 (`buscar_id_paciente`) na DATA_ATUAL. Localize o registro pelo NOME e HORARIO_ATUAL para extrair o `id_agendamento` original.\n3. Valide Expediente e Filtro Anti-Retroativo para a NOVA_DATA e NOVO_HORARIO.\n4. Traduza o NOVO_PROFISSIONAL para ID.\n5. Chame a Tool 5 (`atualizar-agendamento`) usando o ID original e os novos parâmetros.\n6. Resposta: Confirme a remarcação (De -> Para)."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -368,
+        3216
+      ],
+      "id": "ce055646-2aea-47c8-a991-ba85d0227742",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Use para realizar o agendamento final após confirmar que o horário está livre. Requer nome do paciente, ID da agenda, data em dd/MM/yyyy e hora em HH:mm",
+        "method": "POST",
+        "url": "https://www.dentalisnet.com.br/WS/DentalisAPI.svc/agendamento/incluir",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic MTM0NDE6OyRIXiErVX05cA=="
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{JSON.stringify({\n  \"codigo_agenda\": Number($fromAI('id_da_agenda','0')) || 0,\n  \"codigo_especialidade\": 1,\n  \"codigo_paciente\": 0,\n  \"data_consulta\": $fromAI('data_da_consulta','').includes('-') ? $fromAI('data_da_consulta','').split('-').reverse().join('/') : $fromAI('data_da_consulta','').trim(),\n  \"hora_consulta\": $fromAI('hora_da_consulta','').slice(0,5),\n  \"nome_paciente\": $fromAI('nome_completo_paciente','').trim(),\n  \"observacao\": $fromAI('observacoes_agendamento','').trim(),\n  \"alerta\": true,\n  \"atendido\": 1,\n  \"encaixe\": true \n})}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        80,
+        3648
+      ],
+      "id": "baee5727-cd31-4b76-a064-a5387f5b36eb",
+      "name": "criar-agendamento"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Use para cancelar uma consulta existente. Requer obrigatoriamente o id_agendamento. Se não tiver o ID, use primeiro a tool checar_agenda_dentista para localizá-lo.",
+        "method": "POST",
+        "url": "=https://www.dentalisnet.com.br/WS/DentalisAPI.svc/agendamento/desmarcar/{{ $fromAI('id_agendamento' ) }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic MTM0NDE6OyRIXiErVX05cA=="
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        -176,
+        3664
+      ],
+      "id": "c875ae92-1e74-4c78-8502-44c804c2fb3a",
+      "name": "desmarcar_agendamento"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "prompt"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1504,
+        3216
+      ],
+      "id": "4b13bf1d-5d11-40f6-aa06-7eecdc2513e8",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a5ff14b8-fb0f-431d-9b97-30fbc0f0b22f",
+              "name": "resposta",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -16,
+        3216
+      ],
+      "id": "96112e35-9ad4-4115-b465-4d43bb0b5d83",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtém o input do nó anterior (Listar Profissionais)\nconst input = items[0].json;\nlet listaBruta = [];\n\n// 1. TENTATIVA DE LOCALIZAR A LISTA (Resiliência)\n// Verifica se o input já é um array, ou se está dentro de propriedades comuns como 'agendas', 'd', 'result'\nif (Array.isArray(input)) {\n    listaBruta = input;\n} else if (input.agendas && Array.isArray(input.agendas)) {\n    listaBruta = input.agendas;\n} else if (input.d && Array.isArray(input.d)) {\n    listaBruta = input.d;\n} else if (input.ListaAgendas && Array.isArray(input.ListaAgendas)) {\n    listaBruta = input.ListaAgendas;\n} else {\n    // Se o HTTP Request separou os itens em vários inputs no n8n\n    if (items.length > 1) {\n        listaBruta = items.map(item => item.json);\n    }\n}\n\n// Se ainda estiver vazia, tenta achar qualquer array dentro do objeto\nif (listaBruta.length === 0) {\n    for (const key in input) {\n        if (Array.isArray(input[key])) {\n            listaBruta = input[key];\n            break;\n        }\n    }\n}\n\n// 2. FUNÇÃO DE NORMALIZAÇÃO (Mantendo sua lógica original)\nconst normalizar = (texto) => {\n    if (!texto) return '';\n    return texto\n        .toLowerCase()\n        .normalize('NFD')\n        .replace(/[\\u0300-\\u036f]/g, '')\n        .replace(/^(dr|dra|doutor|doutora)\\.?\\s+/g, '') // Remove prefixos\n        .replace(/[^a-z\\s]/g, '') // Remove caracteres especiais\n        .replace(/\\s+/g, ' ') // Remove espaços duplos\n        .trim();\n};\n\n// 3. CRIAÇÃO DO MAPA\nconst mapa = {};\nconst debugInfo = [];\n\nfor (const item of listaBruta) {\n    // Tenta encontrar o ID e o NOME olhando variações comuns de chaves da Dentalis/APIs\n    const id = item.agendaId || item.codigo || item.Codigo || item.id || item.ID || item.Id;\n    const nome = item.agendaNome || item.nome || item.Nome || item.Name || item.profissional;\n\n    if (id && nome) {\n        const nomeNormalizado = normalizar(nome);\n        \n        // Mapeia o nome completo\n        mapa[nomeNormalizado] = id;\n\n        // Opcional: Mapeia também o primeiro nome se for único (ex: \"tiago\" acha \"tiago reis\")\n        const primeiroNome = nomeNormalizado.split(' ')[0];\n        if (primeiroNome && primeiroNome !== nomeNormalizado && !mapa[primeiroNome]) {\n             mapa[primeiroNome] = id;\n        }\n\n        debugInfo.push(`${nome} (ID: ${id}) -> Normalizado: ${nomeNormalizado}`);\n    }\n}\n\n// Validação de Segurança\nif (Object.keys(mapa).length === 0) {\n    // Se não achou nada, retorna um erro amigável ou um mapa vazio\n    // Isso evita que o fluxo quebre, mas avisa no debug\n    return [{\n        json: {\n            MAPA_AGENDAS_RESOLVIDO: {},\n            erro: \"Nenhuma agenda encontrada. Verifique o output do nó 'Listar Profissionais'.\",\n            input_recebido: input\n        }\n    }];\n}\n\n// 4. RETORNO PARA O AGENTE\nreturn [{\n    json: {\n        MAPA_AGENDAS_RESOLVIDO: mapa,\n        _debug_lista_processada: debugInfo // Útil para você conferir se deu certo\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -752,
+        3216
+      ],
+      "id": "de4ae15f-221f-479c-9348-d844f5c375fa",
+      "name": "ID DA AGENDA",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "toolDescription": "Use para remarcar uma consulta (alterar data/hora) ou atualizar dados do paciente em um agendamento existente. Requer o ID do agendamento, e os novos dados: data em dd/MM/yyyy, hora em HH:mm, ID da agenda, e nome do paciente",
+        "method": "POST",
+        "url": "=https://www.dentalisnet.com.br/WS/DentalisAPI.svc/agendamento/atualizar/{{ parseInt($fromAI('id_agendamento', 0)) }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic MTM0NDE6OyRIXiErVX05cA=="
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"codigo_agenda\": {{ parseInt($fromAI('id_da_agenda', 0)) }},\n  \"codigo_especialidade\": 1,\n  \"codigo_paciente\": 0,\n  \"data_consulta\": \"{{ $fromAI('data_da_consulta', '').replace(/[^\\d/]/g, '') }}\",\n  \"hora_consulta\": \"{{ $fromAI('hora_da_consulta', '').replace(/[^\\d:]/g, '') }}\",\n  \"nome_paciente\": \"{{ $fromAI('nome_completo_paciente', '').trim() }}\",\n  \"observacao\": \"{{ $fromAI('observacoes_agendamento', 'Remarcação IA').replace(/[\\r\\n]/g, ' ') }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        -352,
+        3664
+      ],
+      "id": "96b7221d-29f4-4e0c-a995-eb82ac9a36af",
+      "name": "atualizar-agendamento"
+    },
+    {
+      "parameters": {
+        "url": "https://www.dentalisnet.com.br/WS/DentalisAPI.svc/agenda/listar",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic MTM0NDE6OyRIXiErVX05cA=="
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "🔍 1. Listar Profissionais",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -1120,
+        3216
+      ],
+      "notesInFlow": true,
+      "id": "224282ec-6738-4553-817c-dabe6c137d63",
+      "notes": "Retorna lista de todos os dentistas e IDs."
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "fjNVB1QAFv4wOuux",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/fjNVB1QAFv4wOuux",
+          "cachedResultName": "checar-disponibilidade"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "agenda": "={{ parseInt($fromAI('id_da_agenda', 0)) }}",
+            "data": "={{ $fromAI('data_consulta', '').replace(/[^\\d-]/g, '') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "agenda",
+              "displayName": "agenda",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -496,
+        3648
+      ],
+      "id": "841df6bc-f92b-4c02-93ce-b62df1b298ec",
+      "name": "checar-agenda-dentista"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Use para listar horários na agenda de um dentista, e localizar um determinado agendamento atraves do nome do paciente. Requer o ID numérico da agenda (obtido do mapa de agendas) e a data da consulta em formato yyyy-MM-dd (ano-mês-dia)",
+        "url": "https://www.dentalisnet.com.br/WS/DentalisAPI.svc/agenda/horarios/listar",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "agenda",
+              "value": "={{ parseInt($fromAI('id_da_agenda', 0)) }}"
+            },
+            {
+              "name": "data",
+              "value": "={{ $fromAI('data_consulta', '').replace(/[^\\d-]/g, '') }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic MTM0NDE6OyRIXiErVX05cA=="
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        -48,
+        3664
+      ],
+      "id": "eb0972f3-f81b-4342-b85d-f9786fc82ea6",
+      "name": "buscar_id_paciente"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        3424
+      ],
+      "id": "1d41d1e0-82a5-4aec-9904-bda0bc922f1a",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "XwiJ1YgBBHvQIOY0",
+          "name": "OpenRouter UPDENTS"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "criar-agendamento": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "desmarcar_agendamento": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "🔍 1. Listar Profissionais",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ID DA AGENDA": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "atualizar-agendamento": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 1. Listar Profissionais": {
+      "main": [
+        [
+          {
+            "node": "ID DA AGENDA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checar-agenda-dentista": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "buscar_id_paciente": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "prompt": "AÇÃO=CRIAR; SERVIÇO=Manutenção ortodôntica; PROFISSIONAIS=[Dr. Tiago]; PACIENTE=Samuel Augusto Albuquerque de Oliveira; DATA=27/02/2026; HORÁRIO=19:20; TELEFONE=5511960130733; OBSERVAÇÃO=CPF: 53976723860 | NASC: 28/08/2004"
+      }
+    ]
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "943dc715a854d9179c67d7eb9a5865e73543b741372b38cef686a18f72122b6b"
+  }
+}
