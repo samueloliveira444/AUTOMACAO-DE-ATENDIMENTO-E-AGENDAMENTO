@@ -1,0 +1,148 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "agenda"
+            },
+            {
+              "name": "data"
+            }
+          ]
+        }
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        272,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.dentalisnet.com.br/WS/DentalisAPI.svc/agenda/horarios/listar",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "agenda",
+              "value": "={{ $json.agenda }}"
+            },
+            {
+              "name": "data",
+              "value": "={{ $json.data }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic MTM0NDE6OyRIXiErVX05cA=="
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        480,
+        352
+      ],
+      "id": "6c220705-22e5-4127-9ff1-e2db432fe773",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst resultadoFinal = [];\n\nfor (const item of items) {\n  const dadosApi = item.json;\n\n  const processarDia = (dia) => {\n    if (!dia.horario || !Array.isArray(dia.horario)) return null;\n\n    // 1. Achata a lista original\n    const todosHorariosRaw = dia.horario.flat();\n\n    const listaFiltrada = [];\n    let ultimoHorarioRegistrado = \"00:00\"; // Marcador para comparar a progressão do tempo\n\n    for (const h of todosHorariosRaw) {\n      // Validação básica de disponibilidade e formato\n      if (h.id_agendamento === 0 && h.horario && /^\\d{2}:\\d{2}/.test(h.horario)) {\n        \n        const horaAtual = h.horario.substring(0, 5);\n\n        // REGRA DE OURO: Se a hora atual for MENOR que a última que pegamos,\n        // significa que a lista de \"hoje\" acabou e começou a de outro dia/turno.\n        if (horaAtual < ultimoHorarioRegistrado) {\n          break; // PARA o loop completamente e não pega mais nada\n        }\n\n        // Se a hora for igual, é um duplicado, apenas ignoramos e continuamos\n        if (horaAtual === ultimoHorarioRegistrado) {\n          continue;\n        }\n\n        // REGRA: Limite máximo do expediente (19:40)\n        if (horaAtual <= \"19:40\") {\n          listaFiltrada.push(horaAtual);\n          ultimoHorarioRegistrado = horaAtual; // Atualiza o marcador para a próxima comparação\n        }\n      }\n    }\n\n    return {\n      total_encontrado: listaFiltrada.length,\n      data_processada: \"2026-02-25\", // Ideal extrair da API se possível\n      is_hoje: false,\n      horarios_disponiveis: listaFiltrada\n    };\n  };\n\n  if (Array.isArray(dadosApi)) {\n    dadosApi.forEach(dia => {\n      const p = processarDia(dia);\n      if (p) resultadoFinal.push({ json: p });\n    });\n  } else {\n    const p = processarDia(dadosApi);\n    if (p) resultadoFinal.push({ json: p });\n  }\n}\n\nreturn resultadoFinal;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        352
+      ],
+      "id": "c0ed2831-12f6-4606-bc83-d8b2391f75be",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "13a811cc-ee72-43f0-9393-ad4e2afe9ded",
+              "name": "resposta",
+              "value": "={{ $json.horarios_disponiveis }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        352
+      ],
+      "id": "53183cd3-5318-4e72-82f3-cc376b807e1f",
+      "name": "Edit Fields"
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "agenda": 7038,
+        "data": "2026-02-12"
+      }
+    ]
+  },
+  "meta": {
+    "instanceId": "943dc715a854d9179c67d7eb9a5865e73543b741372b38cef686a18f72122b6b"
+  }
+}
