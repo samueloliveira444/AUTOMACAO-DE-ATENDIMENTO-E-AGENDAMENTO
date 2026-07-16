@@ -1,0 +1,64 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d226d94a-aa0b-42f3-ad6b-761b99535504",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://evolution.updents.com.br/group/fetchAllGroups/UPDENTS",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "getParticipants",
+              "value": "false"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "429683C4C977415CAAFCCE10F7D57E11"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "8433acd3-d268-4713-909e-e8d24c5f7b3b",
+      "name": "HTTP Request"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "943dc715a854d9179c67d7eb9a5865e73543b741372b38cef686a18f72122b6b"
+  }
+}
