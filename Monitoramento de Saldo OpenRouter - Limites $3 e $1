@@ -1,0 +1,241 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "id": "9d0b022c-0a68-4003-abd8-da8a61a0dec3",
+      "name": "Schedule Trigger (1h)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1872,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://openrouter.ai/api/v1/credits",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "1c19daaa-2023-40eb-ad2d-fd9f9e37d2e7",
+      "name": "HTTP Request OpenRouter",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        -1696,
+        160
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "mnMGm7Wq0yd7406i",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// 1. Recupera o Static Data do n8n para manter a memória dos alertas\nconst staticData = $getWorkflowStaticData('global');\n\n// 2. Inicializa o estado dos alertas se for a primeira vez rodando\nif (staticData.alerted_3 === undefined) staticData.alerted_3 = false;\nif (staticData.alerted_1 === undefined) staticData.alerted_1 = false;\n\n// 3. Captura os dados vindos do nó HTTP anterior\nconst data = item.json.data;\n\nif (!data || data.total_credits === undefined || data.total_usage === undefined) {\n    throw new Error('Resposta inválida da API OpenRouter.');\n}\n\n// 4. Calcula o saldo real disponível\nconst saldo = parseFloat((data.total_credits - data.total_usage).toFixed(2));\nlet alertType = 'none';\n\n// 5. Lógica de Reset: Se você recarregar a conta, as travas caem\nif (saldo >= 3) staticData.alerted_3 = false;\nif (saldo >= 1) staticData.alerted_1 = false;\n\n// 6. Lógica dos Gatilhos de Alerta ($1 e $3)\nif (saldo < 1) {\n    if (!staticData.alerted_1) {\n        alertType = 'critico_1';\n        staticData.alerted_1 = true;\n        staticData.alerted_3 = true; // Evita disparar o de $3 se cair direto de uma vez\n    }\n} else if (saldo < 3) {\n    if (!staticData.alerted_3) {\n        alertType = 'alerta_3';\n        staticData.alerted_3 = true;\n        staticData.alerted_1 = false; // Deixa o de $1 pronto para a próxima queda\n    }\n}\n\n// 7. Retorna o saldo e o tipo de alerta para os próximos nós\nreturn { \n    json: { \n        saldo: saldo, \n        alertType: alertType \n    } \n}; "
+      },
+      "id": "e9bc38cd-2fa0-4ee2-8347-56c5e0336ebc",
+      "name": "Calcular Saldo e Gerenciar Estado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        -1488,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.alertType }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "alerta_3"
+            },
+            {
+              "value2": "critico_1",
+              "output": 1
+            }
+          ]
+        }
+      },
+      "id": "0615f637-c0f3-409b-9dbe-4b5d62fc5ed0",
+      "name": "Switch Tipo Alerta",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        -1296,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "message",
+              "value": "=⚠️ Alerta de saldo OpenRouter\nSeu saldo atual está abaixo do limite ideal: US$ {{ $json.saldo }}.\nRecomendamos realizar uma recarga para evitar interrupções em breve."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4a2d6679-5219-4704-86f1-ef5dbf418492",
+      "name": "Msg Saldo < 3",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -1072,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "message",
+              "value": "=🚨 ATENÇÃO CRÍTICA\nO saldo da OpenRouter atingiu o nível crítico: US$ {{ $('Calcular Saldo e Gerenciar Estado').item.json.saldo }}.\nO sistema pode parar de funcionar a qualquer momento. Recarregue imediatamente!"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b5453728-487e-4c36-9e2f-f499f5401e1a",
+      "name": "Msg Saldo < 1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -1072,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://evolution.updents.com.br/message/sendText/updents",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "5511995610336"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.message }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "42df34ac-22ca-472a-8e9f-e18f19ebb334",
+      "name": "Enviar WhatsApp Evolution",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        -832,
+        160
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "xPohHImogP2Z2Xyx",
+          "name": "evolution api"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger (1h)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request OpenRouter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request OpenRouter": {
+      "main": [
+        [
+          {
+            "node": "Calcular Saldo e Gerenciar Estado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcular Saldo e Gerenciar Estado": {
+      "main": [
+        [
+          {
+            "node": "Switch Tipo Alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Tipo Alerta": {
+      "main": [
+        [
+          {
+            "node": "Msg Saldo < 3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Msg Saldo < 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Msg Saldo < 3": {
+      "main": [
+        [
+          {
+            "node": "Enviar WhatsApp Evolution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Msg Saldo < 1": {
+      "main": [
+        [
+          {
+            "node": "Enviar WhatsApp Evolution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "943dc715a854d9179c67d7eb9a5865e73543b741372b38cef686a18f72122b6b"
+  }
+}
