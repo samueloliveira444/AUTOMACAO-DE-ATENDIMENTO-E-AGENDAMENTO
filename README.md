@@ -1,6 +1,6 @@
 # Automação de Atendimento e Agendamento com IA
 
-Essa é a automação que eu uso hoje em produção com clientes reais. Ela atende, agenda e resolve dúvidas de ponta a ponta — no WhatsApp, sem intervenção humana na maioria dos casos.
+Essa é a automação que eu uso hoje em produção com clientes reais. Ela atende, agenda e resolve dúvidas de ponta a ponta no WhatsApp, sem intervenção humana na maioria dos casos.
 
 Não é um bot de FAQ. Ela entende o contexto do negócio, decide sozinha e sabe quando (e como) passar o atendimento pra um humano.
 
